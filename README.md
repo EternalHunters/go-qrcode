@@ -1,8 +1,16 @@
 # go-qrcode #
 
+### After Fork
+After fork, I add some function to generate more popular qr-code;
 
+- **Create a PNG image with logo and custom size and margin:**
 
-Package qrcode implements a QR Code encoder. [![Build Status](https://travis-ci.org/skip2/go-qrcode.svg?branch=master)](https://travis-ci.org/skip2/go-qrcode)
+        code ,err:=qrcode.EncodeWithLogo(qrcode.Medium, "123", logo, 100, 200, 5)
+        //The function define:
+        func EncodeWithLogo(level RecoveryLevel, str string, logo image.Image,width, height, margin int) ([]byte, error){xxx}
+ 
+
+Package qrcode implements a QR Code encoder. [![Build Status](https://travis-ci.org/EternalHunters/go-qrcode.svg?branch=master)](https://travis-ci.org/EternalHunters/go-qrcode)
 
 A QR Code is a matrix (two-dimensional) barcode. Arbitrary content may be encoded, with URLs being a popular choice :)
 
@@ -30,10 +38,6 @@ A command-line tool `qrcode` will be built into `$GOPATH/bin/`.
 - **Create a PNG image with custom colors and write to file:**
 
         err := qrcode.WriteColorFile("https://example.org", qrcode.Medium, 256, color.Black, color.White, "qr.png")
-- **Create a PNG image with logo and custom size and margin:**
-        code ,err:=qrcode.EncodeWithLogo(qrcode.Medium, "123", logo, 100, 200, 5)
-        //The function define:
-        func EncodeWithLogo(level RecoveryLevel, str string, logo image.Image,width, height, margin int) (*bytes.Buffer, error){xxx}
 
 All examples use the qrcode.Medium error Recovery Level and create a fixed
 256x256px size QR Code. The last function creates a white on black instead of black
@@ -45,7 +49,7 @@ alphanumeric characters, 7,089 numeric digits, or a combination of these.
 
 ## Documentation
 
-[![godoc](https://godoc.org/github.com/skip2/go-qrcode?status.png)](https://godoc.org/github.com/skip2/go-qrcode)
+[![godoc](https://godoc.org/github.com/EternalHunters/go-qrcode?status.png)](https://godoc.org/github.com/EternalHunters/go-qrcode)
 
 ## Demoapp
 
@@ -57,7 +61,7 @@ A command-line tool `qrcode` will be built into `$GOPATH/bin/`.
 
 ```
 qrcode -- QR Code encoder in Go
-https://github.com/skip2/go-qrcode
+https://github.com/EternalHunters/go-qrcode
 
 Flags:
   -o string
@@ -74,7 +78,7 @@ Usage:
 
   2. Save to file if "display" not available:
 
-       qrcode "homepage: https://github.com/skip2/go-qrcode" > out.png
+       qrcode "homepage: https://github.com/EternalHunters/go-qrcode" > out.png
 ```
 
 ## Links

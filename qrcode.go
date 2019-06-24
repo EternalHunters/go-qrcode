@@ -53,15 +53,16 @@ import (
 	"errors"
 	"image"
 	"image/color"
+	"image/draw"
 	"image/png"
 	"io"
 	"io/ioutil"
 	"log"
 	"os"
 
+	"github.com/EternalHunters/go-qrcode/bitset"
+	"github.com/EternalHunters/go-qrcode/reedsolomon"
 	"github.com/nfnt/resize"
-	bitset "github.com/skip2/go-qrcode/bitset"
-	reedsolomon "github.com/skip2/go-qrcode/reedsolomon"
 )
 
 // Encode a QR Code and return a raw PNG image.
@@ -123,10 +124,9 @@ func WriteColorFile(content string, level RecoveryLevel, size int, background,
 	return q.WriteFile(size, filename)
 }
 
-func EncodeWithLogo(level RecoveryLevel, str string, logo image.Image,
-	width, height, margin int) (*bytes.Buffer, error) {
+func EncodeWithLogo(level RecoveryLevel, str string, logo image.Image, width, height, margin int) ([]byte, error) {
 	var buf bytes.Buffer
-	var colors color.Palette
+	var colors []color.Color
 
 	code, err := New(str, level, margin)
 	if err != nil {
@@ -134,46 +134,62 @@ func EncodeWithLogo(level RecoveryLevel, str string, logo image.Image,
 	}
 
 	logo = resize.Resize(40, 40, logo, resize.NearestNeighbor)
-	for x := 0; x < logo.Bounds().Max.X; x++ {
-		for y := 0; y < logo.Bounds().Max.Y; y++ {
-			if contains(logo.At(x, y), colors) || len(colors) == 254 {
-				continue
-			}
-			colors = append(colors, logo.At(x, y))
-		}
-	}
 	img := code.Image(width, height, colors)
-	overlayLogo(img, logo)
 
 	err = png.Encode(&buf, img)
 	if err != nil {
 		return nil, err
 	}
 
-	return &buf, nil
+	return buf.Bytes(), nil
 }
 
-func contains(item color.Color, input color.Palette) bool {
-	for _, v := range input {
-		r1, g1, b1, a1 := item.RGBA()
-		r2, g2, b2, a2 := v.RGBA()
-		if r1 == r2 && g1 == g2 && b1 == b2 && a1 == a2 {
-			return true
-		}
+func WriteFileWithLogo(filename string, level RecoveryLevel, str string, logo image.Image, width, height, margin int) error {
+	png, err := EncodeWithLogo(level, str, logo, width, height, margin)
+	if err != nil {
+		return err
 	}
-	return false
+	return ioutil.WriteFile(filename, png, os.FileMode(0644))
 }
 
-func overlayLogo(dst, src image.Image) {
-	offsetX := dst.Bounds().Max.X/2 - src.Bounds().Max.X/2
-	offsetY := dst.Bounds().Max.Y/2 - src.Bounds().Max.Y/2
-
-	for x := 0; x < src.Bounds().Max.X; x++ {
-		for y := 0; y < src.Bounds().Max.Y; y++ {
-			col := src.At(x, y)
-			dst.(*image.Paletted).Set(x+offsetX, y+offsetY, col)
-		}
+func BGEncodeWithLogo(bgFile, logo image.Image, level RecoveryLevel, message string, size, margin int) ([]byte, error) {
+	var buf bytes.Buffer
+	var colors []color.Color
+	code, err := New(message, level, margin)
+	if err != nil {
+		return nil, err
 	}
+	logo = resize.Resize(40, 40, logo, resize.NearestNeighbor)
+
+	img := code.Image(size, size, colors)
+	img = mergeImage(img, logo)
+	img = mergeImage(bgFile, img)
+	err = png.Encode(&buf, img)
+	if err != nil {
+		return nil, err
+	}
+
+	return buf.Bytes(), nil
+}
+
+func BGWriteFileWithLogo(filename string, bgFile, logo image.Image, level RecoveryLevel, message string, size, margin int) error {
+	img, err := BGEncodeWithLogo(bgFile, logo, level, message, size, margin)
+	if err != nil {
+		return err
+	}
+	return ioutil.WriteFile(filename, img, os.FileMode(0644))
+}
+
+func mergeImage(dst, src image.Image) image.Image {
+	b1 := dst.Bounds()
+	b2 := src.Bounds()
+	offsetX := b1.Max.X/2 - b2.Max.X/2
+	offsetY := b1.Max.Y/2 - b2.Max.Y/2
+	offset := image.Pt(offsetX, offsetY)
+	m := image.NewRGBA(b1)
+	draw.Draw(m, b1, dst, image.ZP, draw.Src)
+	draw.Draw(m, src.Bounds().Add(offset), src, image.ZP, draw.Over)
+	return image.Image(m)
 }
 
 // A QRCode represents a valid encoded QRCode.

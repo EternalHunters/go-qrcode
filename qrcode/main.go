@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	qrcode "github.com/skip2/go-qrcode"
+	qrcode "github.com/EternalHunters/go-qrcode"
 )
 
 func main() {
@@ -19,7 +19,7 @@ func main() {
 	negative := flag.Bool("i", false, "invert black and white")
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, `qrcode -- QR Code encoder in Go
-https://github.com/skip2/go-qrcode
+https://github.com/EternalHunters/go-qrcode
 
 Flags:
 `)
@@ -34,7 +34,7 @@ Usage:
 
   2. Save to file if "display" not available:
 
-       qrcode "homepage: https://github.com/skip2/go-qrcode" > out.png
+       qrcode "homepage: https://github.com/EternalHunters/go-qrcode" > out.png
 
 `)
 	}
