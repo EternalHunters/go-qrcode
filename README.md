@@ -13,6 +13,7 @@ After fork, I add some function to generate more popular qr-code;
         WriteFileWithLogo(filename string, level RecoveryLevel, str string, logo image.Image, width, height, margin int) error
  
 - **Create a PNG image with logo and background iamge:**
+
         background image support png
         func BGEncodeWithLogo(bgFile, logo image.Image, level RecoveryLevel, message string, size, margin int) ([]byte, error)
         and file writer:
