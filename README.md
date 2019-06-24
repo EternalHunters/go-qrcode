@@ -8,7 +8,15 @@ After fork, I add some function to generate more popular qr-code;
         code ,err:=qrcode.EncodeWithLogo(qrcode.Medium, "123", logo, 100, 200, 5)
         //The function define:
         func EncodeWithLogo(level RecoveryLevel, str string, logo image.Image,width, height, margin int) ([]byte, error){xxx}
+        
+        file writer:
+        WriteFileWithLogo(filename string, level RecoveryLevel, str string, logo image.Image, width, height, margin int) error
  
+- **Create a PNG image with logo and background iamge:**
+        background image support png
+        func BGEncodeWithLogo(bgFile, logo image.Image, level RecoveryLevel, message string, size, margin int) ([]byte, error)
+        and file writer:
+        BGWriteFileWithLogo(filename string, bgFile, logo image.Image, level RecoveryLevel, message string, size, margin int) error
 
 Package qrcode implements a QR Code encoder. [![Build Status](https://travis-ci.org/EternalHunters/go-qrcode.svg?branch=master)](https://travis-ci.org/EternalHunters/go-qrcode)
 
